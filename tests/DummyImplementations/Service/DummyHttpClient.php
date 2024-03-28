@@ -9,9 +9,12 @@ use Psr\Http\Message\ResponseInterface;
 
 class DummyHttpClient implements ClientInterface
 {
+    public function __construct(protected readonly string $content)
+    {
+    }
 
     public function sendRequest(RequestInterface $request): ResponseInterface
     {
-        return new Response();
+        return new Response(body: $this->content);
     }
 }
