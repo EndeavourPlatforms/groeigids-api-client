@@ -4,12 +4,13 @@ namespace Endeavour\GroeigidsApiClient\Test\Integration\Infrastructure\HttpClien
 
 use DateTime;
 use Endeavour\GroeigidsApiClient\Domain\Collection\TypedArray;
+use Endeavour\GroeigidsApiClient\Domain\Exception\InvalidResponseDataException;
+use Endeavour\GroeigidsApiClient\Domain\Exception\NoResponseContentException;
 use Endeavour\GroeigidsApiClient\Domain\Model\Article;
 use Endeavour\GroeigidsApiClient\Domain\Port\GroeigidsClientInterface;
 use Endeavour\GroeigidsApiClient\Infrastructure\HttpClient\GroeigidsClient;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\HttpFactory;
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 class GroeiGidsClientTest extends TestCase
@@ -95,7 +96,7 @@ class GroeiGidsClientTest extends TestCase
     public function testFetchThemeArticlesWithoutChildren(): void
     {
         $themes = $this->client->fetchThemeArticles();
-        foreach($themes as $theme){
+        foreach($themes as $theme) {
             $this->assertEmpty($theme->children);
         }
     }
@@ -103,14 +104,14 @@ class GroeiGidsClientTest extends TestCase
     public function testFetchThemeArticlesWithChildren(): void
     {
         $themes = $this->client->fetchThemeArticles(true);
-        foreach($themes as $theme){
+        foreach($themes as $theme) {
             $this->assertNotEmpty($theme->children);
         }
     }
 
     public function testInvalidResponseData(): void
     {
-        $this->expectExceptionMessage('Invalid response data');
+        $this->expectException(InvalidResponseDataException::class);
         $this->client->fetchArticle(-1);
     }
 
@@ -121,7 +122,7 @@ class GroeiGidsClientTest extends TestCase
         $apiKey = '';
         $client = new GroeigidsClient($guzzleClient, $httpFactory, $apiKey);
 
-        $this->expectExceptionMessage('No response content');
+        $this->expectException(NoResponseContentException::class);
         $client->fetchArticles();
     }
 }

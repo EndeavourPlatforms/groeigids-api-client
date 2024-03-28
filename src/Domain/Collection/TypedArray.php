@@ -3,7 +3,7 @@
 namespace Endeavour\GroeigidsApiClient\Domain\Collection;
 
 use ArrayObject;
-use InvalidArgumentException;
+use Endeavour\GroeigidsApiClient\Domain\Exception\InvalidTypedArgumentException;
 
 /**
  * @template T
@@ -28,12 +28,12 @@ class TypedArray extends ArrayObject
      * @param int|string|null $key
      * @param T $value
      * @return void
-     * @throws InvalidArgumentException If the value is not an instance of the specified type.
+     * @throws InvalidTypedArgumentException
      */
     public function offsetSet(mixed $key, mixed $value): void
     {
         if (! is_a($value, $this->type)) {
-            throw new InvalidArgumentException("Value must be an instance of {$this->type}");
+            throw new InvalidTypedArgumentException("Value must be an instance of {$this->type}");
         }
 
         parent::offsetSet($key, $value);
@@ -42,12 +42,12 @@ class TypedArray extends ArrayObject
     /**
      * @param T $value
      * @return void
-     * @throws InvalidArgumentException If the value is not an instance of the specified type.
+     * @throws InvalidTypedArgumentException
      */
     public function append(mixed $value): void
     {
         if (! is_a($value, $this->type)) {
-            throw new InvalidArgumentException("Value must be an instance of {$this->type}");
+            throw new InvalidTypedArgumentException("Value must be an instance of {$this->type}");
         }
         parent::append($value);
     }

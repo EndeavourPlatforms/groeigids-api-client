@@ -4,11 +4,11 @@ namespace Endeavour\GroeigidsApiClient\Infrastructure\HttpClient;
 
 use DateTimeInterface;
 use Endeavour\GroeigidsApiClient\Domain\Collection\TypedArray;
+use Endeavour\GroeigidsApiClient\Domain\Exception\InvalidResponseDataException;
+use Endeavour\GroeigidsApiClient\Domain\Exception\NoResponseContentException;
 use Endeavour\GroeigidsApiClient\Domain\HttpClient\ResponseData\PageArticle;
 use Endeavour\GroeigidsApiClient\Domain\Model\Article;
 use Endeavour\GroeigidsApiClient\Domain\Port\GroeigidsClientInterface;
-use Exception;
-use HttpRequestException;
 use InvalidArgumentException;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
@@ -111,7 +111,7 @@ class GroeigidsClient implements GroeigidsClientInterface
      * @param RequestInterface $request
      * @return array<string, mixed>
      * @throws ClientExceptionInterface
-     * @throws Exception
+     * @throws NoResponseContentException
      */
     protected function getResponseData(RequestInterface $request): array
     {
@@ -120,7 +120,7 @@ class GroeigidsClient implements GroeigidsClientInterface
         $responseData = json_decode($response->getBody()->getContents(), true);
 
         if (! $responseData) {
-            throw new Exception('No response content found');
+            throw new NoResponseContentException('No response content found');
         }
 
         return $responseData;
@@ -131,7 +131,7 @@ class GroeigidsClient implements GroeigidsClientInterface
      * @param array<string, string|int|bool> $queryParameters
      * @param class-string<T> $type
      * @return T
-     * @throws ClientExceptionInterface|InvalidArgumentException
+     * @throws ClientExceptionInterface|InvalidResponseDataException
      */
     protected function getObjectByRouteAndQueryParameters(
         string $type,
@@ -142,12 +142,12 @@ class GroeigidsClient implements GroeigidsClientInterface
         $responseData = $this->getResponseData($request);
 
         try {
-            $pageArticle = new $type(...$responseData);
+            $object = new $type(...$responseData);
         } catch (Throwable) {
-            throw new InvalidArgumentException('Invalid response data');
+            throw new InvalidResponseDataException('Invalid response data');
         }
 
-        return $pageArticle;
+        return $object;
     }
 
     protected function getUriString(): string
