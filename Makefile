@@ -36,9 +36,12 @@ clean:
 
 logs:
 	@docker-compose logs -f
-	
+
 test:
 	@docker-compose exec -u root $(SERVICE) ./vendor/bin/phpunit
+
+coverage:
+	@docker-compose exec -u root $(SERVICE) ./vendor/bin/phpunit tests/Unit --coverage-html ./coverage/coverage
 
 phpstan:
 	@docker-compose exec -u root $(SERVICE) ./vendor/bin/phpstan analyse -c phpstan.neon.dist
@@ -46,4 +49,4 @@ phpstan:
 lint:
 	@docker-compose exec -u root $(SERVICE) ./vendor/bin/phpcs
 	
-.PHONY: build up down app composer-install composer-update composer clean logs test lint
+.PHONY: build up down app composer-install composer-update composer clean logs test coverage phpstan lint
