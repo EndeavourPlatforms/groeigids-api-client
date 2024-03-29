@@ -16,8 +16,6 @@ RUN apt-get update && apt-get install -y \
 
 COPY ./docker/conf.d/xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
-USER nobody
-
 FROM base as composer-deps
 WORKDIR /var/www/html
 
@@ -29,7 +27,8 @@ RUN composer install
 FROM base as final
 WORKDIR /var/www/html
 
-COPY --link --from=composer-deps /var/www/html/vendor /var/www/html/vendor
+COPY --link --from=composer-deps var/www/html/vendor var/www/html/vendor
+COPY --link --from=composer-deps /usr/bin/composer /usr/bin/composer
 COPY --link --chown=nobody . /var/www/html
 
-
+USER nobody
