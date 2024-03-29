@@ -132,7 +132,7 @@ class GroeigidsClient implements GroeigidsClientInterface
      * @template T of object
      * @param array<string, string|int|bool> $queryParameters
      * @param class-string<T> $type
-     * @throws ClientExceptionInterface|ObjectTypeNotSupportedException|
+     * @throws ClientExceptionInterface|ObjectTypeNotSupportedException|InvalidResponseDataException
      */
     protected function getObjectByRouteAndQueryParameters(
         string $type,

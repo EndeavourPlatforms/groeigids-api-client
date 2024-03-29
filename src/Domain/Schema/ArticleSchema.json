@@ -10,7 +10,7 @@
     "hasContent": {"type": "boolean"},
     "canonical": {"type": "string"},
     "modified": {"type": "string", "format": "date-time"},
-    "parentId": {"type": ["integer", "null"]},
+    "parentId": {"type": "integer"},
     "orderId": {"type": "integer"},
     "children": {
       "type": "array",

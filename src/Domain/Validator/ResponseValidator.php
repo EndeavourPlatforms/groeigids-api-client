@@ -18,12 +18,12 @@ class ResponseValidator implements ResponseValidatorInterface
     {
         $this->validator
             ->resolver()
-            ->registerFile('http://example.com/article.json', 'src/Domain/Schema/ArticleSchema.json')
-            ->registerFile('http://example.com/childarticle.json', 'src/Domain/Schema/ChildArticleSchema.json')
-            ->registerFile('http://example.com/pageableobject.json', 'src/Domain/Schema/PageableObjectSchema.json')
-            ->registerFile('http://example.com/pagearticle.json', 'src/Domain/Schema/PageArticleSchema.json')
-            ->registerFile('http://example.com/sortobject.json', 'src/Domain/Schema/SortObjectSchema.json')
-            ->registerFile('http://example.com/themes.json', 'src/Domain/Schema/ThemesSchema.json')
+            ->registerFile('http://example.com/article.json', __DIR__ . '/../Schema/ArticleSchema.json')
+            ->registerFile('http://example.com/childarticle.json', __DIR__ . '/../Schema/ChildArticleSchema.json')
+            ->registerFile('http://example.com/pageableobject.json', __DIR__ . '/../Schema/PageableObjectSchema.json')
+            ->registerFile('http://example.com/pagearticle.json', __DIR__ . '/../Schema/PageArticleSchema.json')
+            ->registerFile('http://example.com/sortobject.json', __DIR__ . '/../Schema/SortObjectSchema.json')
+            ->registerFile('http://example.com/themes.json', __DIR__ . '/../Schema/ThemesSchema.json')
         ;
     }
 
