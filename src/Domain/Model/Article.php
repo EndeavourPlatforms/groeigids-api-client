@@ -4,20 +4,11 @@ namespace Endeavour\GroeigidsApiClient\Domain\Model;
 
 use DateTimeImmutable;
 use Endeavour\GroeigidsApiClient\Domain\Collection\TypedArray;
-use Exception;
 
 class Article
 {
-    public readonly ?DateTimeImmutable $modified;
-
     /**
-     * @var TypedArray<ArticleChild> $children
-     */
-    public readonly TypedArray $children;
-
-    /**
-     * @param array<string, mixed> $children
-     * @throws Exception
+     * @param TypedArray<ArticleChild> $children
      */
     public function __construct(
         public readonly int $id,
@@ -29,15 +20,9 @@ class Article
         public readonly bool $hasContent,
         public readonly string $canonical,
         public readonly int $orderId,
-        public readonly ?int $parentId = null,
-        array $children = [],
-        ?string $modified = null,
+        public readonly TypedArray $children,
+        public readonly ?int $parentId,
+        public readonly ?DateTimeImmutable $modified,
     ) {
-        $this->children = new TypedArray(
-            ArticleChild::class,
-            array_map(fn(array $childArray) => new ArticleChild(...$childArray), $children)
-        );
-
-        $this->modified = $modified ? new DateTimeImmutable($modified) : null;
     }
 }

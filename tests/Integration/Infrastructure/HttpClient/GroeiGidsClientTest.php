@@ -3,14 +3,17 @@
 namespace Endeavour\GroeigidsApiClient\Test\Integration\Infrastructure\HttpClient;
 
 use DateTime;
+use Endeavour\GroeigidsApiClient\Domain\Builder\ResponseDataBuilder;
 use Endeavour\GroeigidsApiClient\Domain\Collection\TypedArray;
 use Endeavour\GroeigidsApiClient\Domain\Exception\InvalidResponseDataException;
 use Endeavour\GroeigidsApiClient\Domain\Exception\NoResponseContentException;
 use Endeavour\GroeigidsApiClient\Domain\Model\Article;
 use Endeavour\GroeigidsApiClient\Domain\Port\GroeigidsClientInterface;
+use Endeavour\GroeigidsApiClient\Domain\Validator\ResponseValidator;
 use Endeavour\GroeigidsApiClient\Infrastructure\HttpClient\GroeigidsClient;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\HttpFactory;
+use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\TestCase;
 
 class GroeiGidsClientTest extends TestCase
@@ -20,13 +23,21 @@ class GroeiGidsClientTest extends TestCase
     {
         $httpFactory = new HttpFactory();
         $guzzleClient = new Client();
+        $responseDataBuilder = new ResponseDataBuilder();
+        $responseDataValidator = new ResponseValidator(new Validator());
         $apiKey = $_ENV['GROEIGIDS_API_KEY'];
 
         if (! $apiKey) {
             $this->throwException(new \Exception('No API key provided'));
         }
 
-        $this->client = new GroeigidsClient($guzzleClient, $httpFactory, $apiKey);
+        $this->client = new GroeigidsClient(
+            $guzzleClient,
+            $httpFactory,
+            $responseDataBuilder,
+            $responseDataValidator,
+            $apiKey
+        );
 
         parent::setUp();
     }
@@ -119,8 +130,16 @@ class GroeiGidsClientTest extends TestCase
     {
         $httpFactory = new HttpFactory();
         $guzzleClient = new Client();
-        $apiKey = '';
-        $client = new GroeigidsClient($guzzleClient, $httpFactory, $apiKey);
+        $responseDataBuilder = new ResponseDataBuilder();
+        $responseDataValidator = new ResponseValidator(new Validator());
+
+        $client = new GroeigidsClient(
+            $guzzleClient,
+            $httpFactory,
+            $responseDataBuilder,
+            $responseDataValidator,
+            ''
+        );
 
         $this->expectException(NoResponseContentException::class);
         $client->fetchArticles();

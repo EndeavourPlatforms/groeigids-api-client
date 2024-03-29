@@ -3,18 +3,22 @@
 namespace Endeavour\GroeigidsApiClient\Infrastructure\HttpClient;
 
 use DateTimeInterface;
+use Endeavour\GroeigidsApiClient\Domain\Builder\ResponseDataBuilderInterface;
 use Endeavour\GroeigidsApiClient\Domain\Collection\TypedArray;
 use Endeavour\GroeigidsApiClient\Domain\Exception\InvalidResponseDataException;
 use Endeavour\GroeigidsApiClient\Domain\Exception\NoResponseContentException;
+use Endeavour\GroeigidsApiClient\Domain\Exception\ObjectTypeNotSupportedException;
 use Endeavour\GroeigidsApiClient\Domain\HttpClient\ResponseData\PageArticle;
+use Endeavour\GroeigidsApiClient\Domain\HttpClient\ResponseData\Themes;
 use Endeavour\GroeigidsApiClient\Domain\Model\Article;
 use Endeavour\GroeigidsApiClient\Domain\Port\GroeigidsClientInterface;
+use Endeavour\GroeigidsApiClient\Domain\Validator\ResponseValidatorInterface;
+use Exception;
 use InvalidArgumentException;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
-use Throwable;
 
 class GroeigidsClient implements GroeigidsClientInterface
 {
@@ -24,6 +28,8 @@ class GroeigidsClient implements GroeigidsClientInterface
     public function __construct(
         protected ClientInterface $client,
         protected RequestFactoryInterface $requestFactory,
+        protected ResponseDataBuilderInterface $responseDataBuilder,
+        protected ResponseValidatorInterface $responseValidator,
         protected string $apiKey,
     ) {
     }
@@ -55,12 +61,10 @@ class GroeigidsClient implements GroeigidsClientInterface
             'includeChildren' => $withChildren ? 'true' : 'false',
         ];
 
-        $request = $this->createGetRequestByRoute('themes', $queryParameters);
-        $responseData = $this->getResponseData($request);
-
-        $themeArticles = array_map(fn(array $articleThemeArray) => new Article(...$articleThemeArray), $responseData);
-
-        return new TypedArray(Article::class, $themeArticles);
+        return $this
+            ->getObjectByRouteAndQueryParameters(Themes::class, 'themes', $queryParameters)
+            ->themes
+        ;
     }
 
     /**
@@ -108,46 +112,50 @@ class GroeigidsClient implements GroeigidsClientInterface
     }
 
     /**
-     * @param RequestInterface $request
-     * @return array<string, mixed>
      * @throws ClientExceptionInterface
      * @throws NoResponseContentException
      */
-    protected function getResponseData(RequestInterface $request): array
+    protected function getResponseBody(RequestInterface $request): string
     {
         $response = $this->client->sendRequest($request);
 
-        $responseData = json_decode($response->getBody()->getContents(), true);
+        $responseBody = $response->getBody()->getContents();
 
-        if (! $responseData) {
+        if (empty($responseBody)) {
             throw new NoResponseContentException('No response content found');
         }
 
-        return $responseData;
+        return $responseBody;
     }
 
     /**
      * @template T of object
      * @param array<string, string|int|bool> $queryParameters
      * @param class-string<T> $type
-     * @return T
-     * @throws ClientExceptionInterface|InvalidResponseDataException
+     * @throws ClientExceptionInterface|ObjectTypeNotSupportedException|
      */
     protected function getObjectByRouteAndQueryParameters(
         string $type,
         string $route,
         array $queryParameters = []
-    ): mixed {
+    ): PageArticle|Article|Themes {
         $request = $this->createGetRequestByRoute($route, $queryParameters);
-        $responseData = $this->getResponseData($request);
+        $responseBody = $this->getResponseBody($request);
 
         try {
-            $object = new $type(...$responseData);
-        } catch (Throwable) {
+            $this->responseValidator->validateData($type, $responseBody);
+        } catch (Exception) {
             throw new InvalidResponseDataException('Invalid response data');
         }
 
-        return $object;
+        $responseData = json_decode($responseBody, true);
+
+        return match($type) {
+            Article::class => $this->responseDataBuilder->buildArticle($responseData),
+            PageArticle::class => $this->responseDataBuilder->buildPageArticle($responseData),
+            Themes::class => $this->responseDataBuilder->buildThemes($responseData),
+            default => throw new ObjectTypeNotSupportedException('Response data could not be converted to object'),
+        };
     }
 
     protected function getUriString(): string

@@ -3,14 +3,17 @@
 namespace Endeavour\GroeigidsApiClient\Test\Unit\Infrastructure\HttpClient;
 
 use DateTime;
+use Endeavour\GroeigidsApiClient\Domain\Builder\ResponseDataBuilder;
 use Endeavour\GroeigidsApiClient\Domain\Collection\TypedArray;
 use Endeavour\GroeigidsApiClient\Domain\Exception\InvalidResponseDataException;
 use Endeavour\GroeigidsApiClient\Domain\Exception\NoResponseContentException;
 use Endeavour\GroeigidsApiClient\Domain\Model\Article;
 use Endeavour\GroeigidsApiClient\Domain\Port\GroeigidsClientInterface;
+use Endeavour\GroeigidsApiClient\Domain\Validator\ResponseValidator;
 use Endeavour\GroeigidsApiClient\Infrastructure\HttpClient\GroeigidsClient;
 use Endeavour\GroeigidsApiClient\Test\DummyImplementations\Service\DummyHttpClient;
 use Endeavour\GroeigidsApiClient\Test\DummyImplementations\Service\DummyRequestFactory;
+use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\TestCase;
 
 class GroeiGidsClientTest extends TestCase
@@ -21,9 +24,17 @@ class GroeiGidsClientTest extends TestCase
         $guzzleClient = new DummyHttpClient(
             file_get_contents(sprintf(__DIR__ . '/../../../Resources/%s', $responseFilePath))
         );
-        $apiKey = '';
 
-        return new GroeigidsClient($guzzleClient, $httpFactory, $apiKey);
+        $responseDataBuilder = new ResponseDataBuilder();
+        $responseDataValidator = new ResponseValidator(new Validator());
+
+        return new GroeigidsClient(
+            $guzzleClient,
+            $httpFactory,
+            $responseDataBuilder,
+            $responseDataValidator,
+            ''
+        );
     }
 
     public function testFetchArticles(): void

@@ -32,8 +32,9 @@ class TypedArrayTest extends TestCase
             hasContent: true,
             canonical: '',
             orderId: 0,
+            children: new TypedArray(ArticleChild::class),
             parentId: 0,
-            modified: (new DateTime())->format('Y-m-d H:i:s'),
+            modified: new \DateTimeImmutable(),
         );
         $articleArray[] = $article;
 
@@ -56,8 +57,9 @@ class TypedArrayTest extends TestCase
             hasContent: true,
             canonical: '',
             orderId: 0,
+            children: new TypedArray(ArticleChild::class),
             parentId: 0,
-            modified: (new DateTime())->format('Y-m-d H:i:s'),
+            modified: new \DateTimeImmutable(),
         );
 
         $articleArray[] = $article;
@@ -77,8 +79,9 @@ class TypedArrayTest extends TestCase
             hasContent: true,
             canonical: '',
             orderId: 0,
+            children: new TypedArray(ArticleChild::class),
             parentId: 0,
-            modified: (new DateTime())->format('Y-m-d H:i:s'),
+            modified: new \DateTimeImmutable(),
         );
         $articleArray->append($article);
 
@@ -101,8 +104,9 @@ class TypedArrayTest extends TestCase
             hasContent: true,
             canonical: '',
             orderId: 0,
+            children: new TypedArray(ArticleChild::class),
             parentId: 0,
-            modified: (new DateTime())->format('Y-m-d H:i:s'),
+            modified: new \DateTimeImmutable(),
         );
 
         $articleArray->append($article);
