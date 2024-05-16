@@ -6,9 +6,11 @@ use DateTime;
 use Endeavour\GroeigidsApiClient\Domain\Builder\ResponseDataBuilder;
 use Endeavour\GroeigidsApiClient\Domain\Collection\TypedArray;
 use Endeavour\GroeigidsApiClient\Domain\Exception\InvalidResponseDataException;
+use Endeavour\GroeigidsApiClient\Domain\Exception\InvalidSortDirectionException;
 use Endeavour\GroeigidsApiClient\Domain\Exception\NoResponseContentException;
 use Endeavour\GroeigidsApiClient\Domain\Model\Article;
 use Endeavour\GroeigidsApiClient\Domain\Port\GroeigidsClientInterface;
+use Endeavour\GroeigidsApiClient\Domain\Query\SortParameter;
 use Endeavour\GroeigidsApiClient\Domain\Validator\ResponseValidator;
 use Endeavour\GroeigidsApiClient\Infrastructure\HttpClient\GroeigidsClient;
 use Endeavour\GroeigidsApiClient\Test\DummyImplementations\Service\DummyHttpClient;
@@ -40,18 +42,53 @@ class GroeiGidsClientTest extends TestCase
     public function testFetchArticles(): void
     {
         $articles = $this
-            ->getClient('groeigids-api.elkander.nl-v1-articles?page=0&size=20.json')
+            ->getClient('groeigids-api.elkander.nl-v1-articles_page_0&size_20.json')
             ->fetchArticles()
         ;
 
         $this->assertInstanceOf(TypedArray::class, $articles);
     }
 
+    public function testFetchArticlesSortedByModifiedDescending(): void
+    {
+        $sortParameter = new SortParameter('modified', 'desc');
+        $articles = $this
+            ->getClient('groeigids-api.elkander.nl-v1-articles_page_0&size_20&sort_modified%2Cdesc.json')
+            ->fetchArticles(sortParameters: new TypedArray(SortParameter::class, [$sortParameter]))
+        ;
+
+        $firstArticle = $articles[0];
+        $lastArticle = $articles[count($articles) - 1];
+
+        $this->assertGreaterThan($lastArticle->modified, $firstArticle->modified);
+    }
+
+    public function testFetchArticlesSortedByModifiedAscending(): void
+    {
+        $sortParameter = new SortParameter('modified', 'asc');
+        $articles = $this
+            ->getClient('groeigids-api.elkander.nl-v1-articles_page_4&size_20&sort_modified%2Casc.json')
+            ->fetchArticles(sortParameters: new TypedArray(SortParameter::class, [$sortParameter]))
+        ;
+
+        $firstArticle = $articles[0];
+        $lastArticle = $articles[count($articles) - 1];
+
+        $this->assertLessThan($lastArticle->modified, $firstArticle->modified);
+    }
+
+    public function testFetchArticlesSortedWithUnsupportedDirection(): void
+    {
+        $this->expectException(InvalidSortDirectionException::class);
+
+        new SortParameter('modified', 'not_asc_or_desc');
+    }
+
     public function testFetchArticleByBreadcrumb(): void
     {
         $breadcrumb = '/onderwerp/zwanger/';
         $theme = $this
-            ->getClient('groeigids-api.elkander.nl-v1-theme?breadcrumb=%2Fonderwerp%2Fzwanger%2F.json')
+            ->getClient('groeigids-api.elkander.nl-v1-theme_breadcrumb_%2Fonderwerp%2Fzwanger%2F.json')
             ->fetchArticleByBreadcrumb($breadcrumb);
 
         $this->assertInstanceOf(Article::class, $theme);
@@ -61,7 +98,7 @@ class GroeiGidsClientTest extends TestCase
     {
         $id = 7808;
         $article = $this
-            ->getClient('groeigids-api.elkander.nl-v1-article-7808?includeChildren=true.json')
+            ->getClient('groeigids-api.elkander.nl-v1-article-7808_includeChildren_true.json')
             ->fetchArticle($id, true)
         ;
 
@@ -72,7 +109,7 @@ class GroeiGidsClientTest extends TestCase
     {
         $id = 7808;
         $article = $this
-            ->getClient('groeigids-api.elkander.nl-v1-article-7808?includeChildren=true.json')
+            ->getClient('groeigids-api.elkander.nl-v1-article-7808_includeChildren_true.json')
             ->fetchArticle($id, true)
         ;
 
@@ -83,7 +120,7 @@ class GroeiGidsClientTest extends TestCase
     {
         $id = 7808;
         $article = $this
-            ->getClient('groeigids-api.elkander.nl-v1-article-7808?includeChildren=false.json')
+            ->getClient('groeigids-api.elkander.nl-v1-article-7808_includeChildren_false.json')
             ->fetchArticle($id)
         ;
 
@@ -94,7 +131,7 @@ class GroeiGidsClientTest extends TestCase
     {
         $id = 7808;
         $article = $this
-            ->getClient('groeigids-api.elkander.nl-v1-article-7808?includeChildren=false.json')
+            ->getClient('groeigids-api.elkander.nl-v1-article-7808_includeChildren_false.json')
             ->fetchArticle($id)
         ;
 
@@ -105,7 +142,7 @@ class GroeiGidsClientTest extends TestCase
     {
         $datetime = new DateTime('2000-01-01');
         $articles = $this
-            ->getClient('groeigids-api.elkander.nl-v1-articles-modified?modified=2000-01-01&page=0&size=20.json')
+            ->getClient('groeigids-api.elkander.nl-v1-articles-modified_modified_2000-01-01&page_0&size_20.json')
             ->fetchModfifiedArticlesAfterDate($datetime);
 
         $this->assertNotEmpty($articles);
@@ -114,7 +151,7 @@ class GroeiGidsClientTest extends TestCase
     public function testFetchThemeArticles(): void
     {
         $themes = $this
-            ->getClient('groeigids-api.elkander.nl-v1-themes?includeChildren=true.json')
+            ->getClient('groeigids-api.elkander.nl-v1-themes_includeChildren_true.json')
             ->fetchThemeArticles(true)
         ;
 
@@ -124,7 +161,7 @@ class GroeiGidsClientTest extends TestCase
     public function testFetchThemeArticlesWithoutChildren(): void
     {
         $themes = $this
-            ->getClient('groeigids-api.elkander.nl-v1-themes?includeChildren=false.json')
+            ->getClient('groeigids-api.elkander.nl-v1-themes_includeChildren_false.json')
             ->fetchThemeArticles()
         ;
         foreach($themes as $theme) {
@@ -135,7 +172,7 @@ class GroeiGidsClientTest extends TestCase
     public function testFetchThemeArticlesWithChildren(): void
     {
         $themes = $this
-            ->getClient('groeigids-api.elkander.nl-v1-themes?includeChildren=true.json')
+            ->getClient('groeigids-api.elkander.nl-v1-themes_includeChildren_true.json')
             ->fetchThemeArticles(true)
         ;
 
@@ -149,7 +186,7 @@ class GroeiGidsClientTest extends TestCase
         $id = -1;
         $this->expectException(InvalidResponseDataException::class);
         $this
-            ->getClient('groeigids-api.elkander.nl-v1-article--1?includeChildren=false.json')
+            ->getClient('groeigids-api.elkander.nl-v1-article--1_includeChildren_false.json')
             ->fetchArticle($id)
         ;
     }

@@ -5,38 +5,37 @@ namespace Endeavour\GroeigidsApiClient\Domain\Port;
 use DateTimeInterface;
 use Endeavour\GroeigidsApiClient\Domain\Collection\TypedArray;
 use Endeavour\GroeigidsApiClient\Domain\Model\Article;
+use Endeavour\GroeigidsApiClient\Domain\Query\SortParameter;
 
 interface GroeigidsClientInterface
 {
     /**
-     * @param array<string>|null $sort
-     * @example ['orderId,desc', 'some_other_property,asc']
+     * @param TypedArray<SortParameter>|null $sortParameters
      * @return TypedArray<Article>
      */
     public function fetchArticles(
         int $page = 0,
         int $size = 20,
-        array $sort = null,
+        ?TypedArray $sortParameters = null,
     ): TypedArray;
 
     public function fetchArticle(int $id, bool $includeChildren = false): Article;
 
     /**
-     * @param array{string: 'asc'|'desc'}|null $sort
-     * @example ['orderId,desc', 'some_other_property,asc']
+     * @param TypedArray<SortParameter>|null $sortParameters
      * @return TypedArray<Article>
      */
     public function fetchModfifiedArticlesAfterDate(
-        DateTimeInterface $dateTime,
+        DateTimeInterface $modifiedDate,
         int $page = 0,
         int $size = 20,
-        array $sort = null,
+        ?TypedArray $sortParameters = null,
     ): TypedArray;
 
     /**
      * @return TypedArray<Article>
      */
-    public function fetchThemeArticles(bool $withChildren = false): TypedArray;
+    public function fetchThemeArticles(bool $includeChildren = false): TypedArray;
 
     public function fetchArticleByBreadcrumb(string $breadcrumb): Article;
 }

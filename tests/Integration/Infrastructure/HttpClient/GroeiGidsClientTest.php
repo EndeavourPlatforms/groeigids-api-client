@@ -6,9 +6,11 @@ use DateTime;
 use Endeavour\GroeigidsApiClient\Domain\Builder\ResponseDataBuilder;
 use Endeavour\GroeigidsApiClient\Domain\Collection\TypedArray;
 use Endeavour\GroeigidsApiClient\Domain\Exception\InvalidResponseDataException;
+use Endeavour\GroeigidsApiClient\Domain\Exception\InvalidSortDirectionException;
 use Endeavour\GroeigidsApiClient\Domain\Exception\NoResponseContentException;
 use Endeavour\GroeigidsApiClient\Domain\Model\Article;
 use Endeavour\GroeigidsApiClient\Domain\Port\GroeigidsClientInterface;
+use Endeavour\GroeigidsApiClient\Domain\Query\SortParameter;
 use Endeavour\GroeigidsApiClient\Domain\Validator\ResponseValidator;
 use Endeavour\GroeigidsApiClient\Infrastructure\HttpClient\GroeigidsClient;
 use GuzzleHttp\Client;
@@ -47,6 +49,33 @@ class GroeiGidsClientTest extends TestCase
         $articles = $this->client->fetchArticles();
 
         $this->assertInstanceOf(TypedArray::class, $articles);
+    }
+
+    public function testFetchArticlesSortedByModifiedDescending(): void
+    {
+        $sortParameter = new SortParameter('modified', 'desc');
+        $articles = $this->client->fetchArticles(
+            sortParameters: new TypedArray(SortParameter::class, [$sortParameter])
+        );
+
+        $firstArticle = $articles[0];
+        $lastArticle = $articles[count($articles) - 1];
+
+        $this->assertGreaterThan($lastArticle->modified, $firstArticle->modified);
+    }
+
+    public function testFetchArticlesSortedByModifiedAscending(): void
+    {
+        $sortParameter = new SortParameter('modified', 'asc');
+        $articles = $this->client->fetchArticles(
+            page: 4,
+            sortParameters: new TypedArray(SortParameter::class, [$sortParameter])
+        );
+
+        $firstArticle = $articles[0];
+        $lastArticle = $articles[count($articles) - 1];
+
+        $this->assertLessThan($lastArticle->modified, $firstArticle->modified);
     }
 
     public function testFetchArticleByBreadcrumb(): void
