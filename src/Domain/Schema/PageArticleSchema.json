@@ -1,0 +1,34 @@
+{
+  "type": "object",
+  "properties": {
+    "content": {
+      "type": "array",
+      "items": {
+        "$ref": "http://example.com/article.json"
+      }
+    },
+    "number": {"type": "integer"},
+    "totalPages": {"type": "integer"},
+    "size": {"type": "integer"},
+    "totalElements": {"type": "integer"},
+    "pageable": {"$ref": "http://example.com/pageableobject.json"},
+    "sort": {"$ref": "http://example.com/sortobject.json"},
+    "numberOfElements": {"type": "integer"},
+    "last": {"type": "boolean"},
+    "first": {"type": "boolean"},
+    "empty": {"type": "boolean"}
+  },
+  "required": [
+    "content",
+    "number",
+    "totalPages",
+    "size",
+    "totalElements",
+    "pageable",
+    "sort",
+    "numberOfElements",
+    "last",
+    "first",
+    "empty"
+  ]
+}

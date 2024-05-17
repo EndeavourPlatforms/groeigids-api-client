@@ -1,0 +1,33 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {"type": "integer"},
+    "title": {"type": "string"},
+    "content": {"type": "string"},
+    "breadcrumb": {"type": "string"},
+    "media": {"type": "string"},
+    "mediaExtra": {"type": "string"},
+    "hasContent": {"type": "boolean"},
+    "canonical": {"type": "string"},
+    "modified": {"type": "string", "format": "date-time"},
+    "parentId": {"type": "integer"},
+    "orderId": {"type": "integer"},
+    "children": {
+      "type": "array",
+      "items": {
+        "$ref": "http://example.com/childarticle.json"
+      }
+    }
+  },
+  "required": [
+    "id",
+    "title",
+    "content",
+    "breadcrumb",
+    "media",
+    "mediaExtra",
+    "hasContent",
+    "canonical",
+    "orderId"
+  ]
+}
