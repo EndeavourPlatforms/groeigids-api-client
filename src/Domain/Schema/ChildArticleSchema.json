@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {"type": "integer"},
+    "title": {"type": "string"},
+    "breadcrumb": {"type": "string"},
+    "hasContent": {"type": "boolean"},
+    "children": {
+      "type": "array",
+      "items": {
+        "$ref": "http://example.com/childarticle.json"
+      }
+    }
+  },
+  "required": [
+    "id",
+    "title",
+    "breadcrumb",
+    "hasContent"
+  ]
+}

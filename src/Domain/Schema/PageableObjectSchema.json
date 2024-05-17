@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "properties": {
+    "pageNumber": {"type": "integer"},
+    "pageSize": {"type": "integer"},
+    "offset": {"type": "integer"},
+    "sort": {"$ref": "http://example.com/sortobject.json"},
+    "paged": {"type": "boolean"},
+    "unpaged": {"type": "boolean"}
+  },
+  "required": [
+    "pageNumber",
+    "pageSize",
+    "offset",
+    "sort",
+    "paged",
+    "unpaged"
+  ]
+}
