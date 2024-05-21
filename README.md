@@ -14,8 +14,7 @@ Swagger documentation of the API can be found [here](https://groeigids-api.elkan
 - Composer
 - A valid API key for the Groeigids API
 - A PSR-18 compatible HTTP client
-- A PSR-7 compatible Message implementation
-- A PSR-7 compatible HTTP factory implementation
+- A PSR-17 compatible HTTP factory implementation
 
 ## Installation
 To install the Groeigids API Client, use Composer:
