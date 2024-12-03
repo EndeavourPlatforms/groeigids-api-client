@@ -14,6 +14,7 @@ Swagger documentation of the API can be found [here](https://groeigids-api.elkan
 - Composer
 - A valid API key for the Groeigids API
 - A PSR-18 compatible HTTP client
+- A PSR-17 compatible HTTP factory implementation
 
 ## Installation
 To install the Groeigids API Client, use Composer:
@@ -32,7 +33,13 @@ To use the Groeigids API Client, create an instance of the `GroeigidsApiClient` 
 ```php
 use Endeavour\GroeigidsApiClient\Infrastructure\HttpClient\GroeigidsClient;
 
-$client = new GroeigidsClient(getenv('GROEIGIDS_API_KEY'));
+$client = new GroeigidsClient(
+    ClientInterface,
+    RequestFactoryInterface,
+    new ResponseDataBuilder(),
+    new ResponseValidator(new Opis\Validator()),
+    getenv('GROEIGIDS_API_KEY')
+);
 ```
 Now fetching articles and themes is as simple as calling the `fetchArticles` and `fetchThemeArticles` methods:
 ```php
